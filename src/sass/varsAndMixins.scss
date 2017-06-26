@@ -1,0 +1,166 @@
+@mixin border_radius( $radius_num ) {
+  border-radius: $radius_num;
+  -webkit-border-radius: $radius_num;
+}
+
+@mixin box_sizing( $box_type ) {
+  box-sizing: $box_type;
+  -moz-box-sizing: $box_type;
+  -webkit-box-sizing: $box_type;
+}
+
+@mixin opacity( $value ) {
+  $ms_filter: $value * 100;
+  -ms-filter: '"progid:DXImageTransform.Microsoft.Alpha(Opacity=@{ms_filter})"';
+  opacity: $value;
+}
+
+@mixin transition( $transition_value ) {
+  -webkit-transition: $transition_value; /* For Safari 3.1 to 6.0 */
+  transition: $transition_value;
+}
+
+@mixin transition_delay( $delay_time ) {
+  -webkit-transition-delay: $delay_time; /* For Safari 3.1 to 6.0 */
+  transition-delay: $delay_time;
+}
+
+@mixin transform( $transform_value ) {
+  transform: $transform_value;
+  -ms-transform: $transform_value; /* IE 9 */
+  -webkit-transform: $transform_value; /* Safari and Chrome */
+}
+
+@mixin animate( $animate_value ) {
+  -webkit-animation: $animate_value;
+  animation: $animate_value;
+}
+
+@mixin animate_delay( $delay_time ) {
+  -webkit-animation-delay: $delay_time;
+  animation-delay: $delay_time;
+}
+
+@mixin transform_origin_center() {
+  transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%; /* IE 9 */
+  -webkit-transform-origin: 50% 50%; /* Safari and Chrome */
+}
+
+@mixin rotate( $degrees ) {
+  -webkit-transform: rotate($degrees);
+  -moz-transform: rotate($degrees);
+  -ms-transform: rotate($degrees);
+  -o-transform: rotate($degrees);
+  transform: rotate($degrees);
+}
+
+@mixin gpu_acceleration() {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+@mixin margin_auto() { margin: 0 auto; }
+
+@mixin clear_both() { content: ""; display: block; clear: both; width: 0; height: 0; font-size: 0; line-height: 0; }
+
+@mixin user_select_none() {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+@mixin tap_highlight_none() {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ==================== 스타일 리셋 */
+@mixin style_reset() {
+  @charset "utf-8";
+
+  html, body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, fieldset, legend, input, button, textarea, form, p, blockquote, th, td, strong, iframe, div { margin: 0; padding: 0; }
+
+  article, aside, canvas, details, figcaption, figure, footer, header, nav, section, summary { display: block; margin: 0; padding: 0; }
+
+  hr { display: none; }
+
+  h1, h2, h3, h4, h5, h6, p, th, td, div, label, textarea, a, li, input, button, textarea, select, address {
+    color: #666; font-size: 12px; line-height: 1em; font-family: spoqa_han_sans, Helvetica Neue, 'Apple SD Gothic Neo', arial, '나눔고딕', 'Nanum Gothic', '돋움', Dotum, Tahoma, Geneva, sans-serif; letter-spacing: -.03em;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 { font-weight: normal; font-size: 12px; }
+
+  cite, address, dfn, var, u, i { font-style: normal; }
+
+  a:link, a:visited { color: #666; text-decoration: none; }
+
+  *:focus, *:active, *:link, *:visited { outline: none; }
+
+  ins { text-decoration: none; }
+
+  table { border-collapse: collapse; border-spacing: 0; }
+
+  ul, ol { list-style: none; }
+
+  q, q:before, q:after { quotes: none; content: ''; }
+
+  input, button, textarea, select, img { vertical-align: middle; outline: none; }
+
+  iframe, fieldset, img { border: 0; -ms-interpolation-mode: bicubic; }
+
+  div, span, a, button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    @include tap_highlight_none();
+  }
+
+  a, button {
+    cursor: pointer; border: none; background: none; overflow: visible;
+  }
+
+  button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
+
+  button, label { cursor: pointer; }
+
+  button, input { line-height: normal; }
+
+  button, input[type="button"], input[type="reset"], input[type="submit"] { cursor: pointer; -webkit-appearance: none; -moz-appearance: none; }
+
+  select { border: 1px solid #dddad5; background-color: #fff; }
+
+  input[type="checkbox"], input[type="radio"] { box-sizing: border-box; padding: 0; }
+
+  input[type="search"] { -webkit-appearance: none; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; }
+
+  input[type="search"]::-webkit-search-decoration, input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  input[type="search"]::-ms-clear, input[type="text"]::-ms-clear { display: none; }
+
+  // number type input의 증감버튼 가려주기(버튼이 우측에 영역을 차지하고 있어서 여백 생김)
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
+
+  .none { display: none; }
+
+  .clear_both { display: block; clear: both; width: 0; height: 0; font-size: 0; line-height: 0; visibility: hidden; border: none; margin: 0; padding: 0; }
+
+  .hidden { display: block; font-size: 0; line-height: 0; width: 0; height: 0; visibility: hidden; position: absolute; }
+  .indent_hidden { position: absolute; display: inline-block; height: 0; width: 0; text-indent: -9999px; overflow: hidden; }
+  .absolute_hidden { width: 0; height: 0; overflow: hidden; position: absolute; text-indent: -9999px; opacity: 0; }
+  [class^="icon-"], [class*=" icon-"], [class^="ruicon_"], [class*=" ruicon_"] {
+    vertical-align: -10%;
+  }
+}

@@ -8,21 +8,31 @@ export const CarouselNavigatorType = {
 class Carousel extends React.Component {
   constructor() {
     super();
+    this.timer = null;
     this.state = {
       currentSlide: 0,
       slideCount: 0,
     };
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    const { children } = nextProps;
-    console.log('will update');
+  componentWillMount() {
+    const { children } = this.props;
     this.setState({
       currentSlide: 1,
       slideCount: children.length
     });
+  }
 
-    console.log(this.state.currentSlide);
+  setTimerStart() {
+    const { autoPlay, autoPlayInterval } = this.props;
+    const { currentSlide, slideCount } = this.state;
+    if (autoPlay) {
+      this.timer = setInterval(() => {
+        this.setState({
+          currentSlider: (currentSlide === slideCount) ? 1 : (currentSlide + 1)
+        });
+      }, Number(autoPlayInterval));
+    }
   }
 
   renderSlider() {
@@ -54,6 +64,7 @@ class Carousel extends React.Component {
         (
           <li
             className={`carousel_navigator_unit${currentSlide === idx ? ' active' : ''}`}
+            key={`dot_navigator_${idx}`}
           >
             <span className="unit_dot" />
           </li>
@@ -88,8 +99,10 @@ class Carousel extends React.Component {
   }
 
   render() {
+    const { fullWidth } = this.props;
+
     return (
-      <div className="carousel_slider_wrapper">
+      <div className={`carousel_slider_wrapper${fullWidth ? ' full_width_gallery' : ''}`}>
         {this.renderSlider()}
         {this.renderNavigator()}
       </div>
@@ -100,6 +113,13 @@ class Carousel extends React.Component {
 Carousel.propTypes = {
   children: PropTypes.node,
   naviType: PropTypes.string,
+  fullWidth: PropTypes.bool,
+  autoPlay: PropTypes.bool,
+  autoPlayInterval: PropTypes.number
+};
+
+Carousel.defaultProps = {
+  autoPlayInterval: 1000
 };
 
 export default Carousel;

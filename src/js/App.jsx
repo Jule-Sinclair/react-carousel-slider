@@ -7,6 +7,9 @@ class App extends React.Component {
       <div>
         <Carousel
           naviType={CarouselNavigatorType.DOT}
+          fullWidth={Boolean(true)}
+          autoPlay={Boolean(true)}
+          autoPlayInterval={500}
         >
           <div className="a">a</div>
           <div className="b">b</div>
