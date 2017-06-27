@@ -3,9 +3,9 @@
 @include style_reset();
 
 .carousel_slider_wrapper {
-  position: relative;
+  position: relative; overflow: hidden; min-height: 100px;
   .slider {
-    position: absolute; overflow: hidden; white-space: nowrap;
+    position: absolute; white-space: nowrap;
     .slide_item {
       display: inline-block;
     }
