@@ -1,5 +1,4 @@
 import React, { PropTypes } from 'react';
-import Draggable from 'react-draggable';
 
 
 export const CarouselNavigatorType = {
@@ -10,6 +9,7 @@ export const CarouselNavigatorType = {
 class Carousel extends React.Component {
   constructor() {
     super();
+    this.slidingArea = null;
     this.timer = null;
     this.clickSafe = false;
     this.touchObject = {};
@@ -59,9 +59,11 @@ class Carousel extends React.Component {
       length,
       direction
     };
+    this.setSlidingAreaLeft(e.touches[0].pageX - this.touchObject.startX);
   }
 
   onTouchEnd(e) {
+    this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
   }
 
@@ -95,6 +97,10 @@ class Carousel extends React.Component {
     return marginLeft;
   }
 
+  setSlidingAreaLeft(positionX) {
+    this.slidingArea.style.transform = `translate3d(${positionX}px, 0, 0)`;
+  }
+
   swipeDirection(x1, x2, y1, y2) {
     let swipeAngle;
     const xDist = x1 - x2;
@@ -125,13 +131,20 @@ class Carousel extends React.Component {
 
   handleSwipe(e) {
     const { width, children } = this.props;
+    const { currentSlide, slideCount } = this.state;
     const slidesToShow = children.length;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
 
-    if (this.touchObject.length > (width / 5)) {
+    if (this.touchObject.length > (width / 2)) {
       if (this.touchObject.direction === 1) {
+        this.setState({
+          currentSlide: (currentSlide === slideCount) ? 1 : (currentSlide + 1)
+        });
         console.log('next slide');
       } else if (this.touchObject.direction === -1) {
+        this.setState({
+          currentSlide: (currentSlide === 1) ? slideCount : (currentSlide - 1)
+        });
         console.log('prev slide');
       }
     } else {
@@ -248,6 +261,7 @@ class Carousel extends React.Component {
 
   render() {
     const { children, centerMode } = this.props;
+    const { left } = this.state;
 
     return (
       <div className="carousel_slider_wrapper">
@@ -258,9 +272,10 @@ class Carousel extends React.Component {
         >
           <ul
             className="slider handle"
+            ref={ul => { this.slidingArea = ul; }}
             style={centerMode ? {
               left: '50%',
-              marginLeft: this.getHorizontalPosition()
+              marginLeft: this.getHorizontalPosition(),
             } : {}}
           >
             {this.renderSlider()}
