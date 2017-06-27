@@ -1,3 +1,10 @@
 @import './varsAndMixins';
 
 @include style_reset();
+
+.slider {
+  position: relative; overflow: hidden; white-space: nowrap;
+  .slide_item {
+    display: inline-block;
+  }
+}

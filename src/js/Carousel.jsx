@@ -36,23 +36,64 @@ class Carousel extends React.Component {
   }
 
   renderSlider() {
-    const { children, isInfinite } = this.props;
+    const {
+      children,
+      isInfinite,
+      width,
+      fullWidth
+    } = this.props;
     const { currentSlide } = this.state;
     const length = children.length;
     const itemArray = [];
 
     if (isInfinite) {
-      itemArray.push((<li className="slide_item" key="slide_negative_2">{children[length - 2]}</li>));
-      itemArray.push((<li className="slide_item" key="slide_negative_1">{children[length - 1]}</li>));
+      itemArray.push((
+        <li
+          className="slide_item"
+          key="slide_negative_2"
+          style={{
+            width: fullWidth ? '100%' : `${width}px`
+          }}
+        >{children[length - 2]}</li>
+      ));
+      itemArray.push((
+        <li
+          className="slide_item"
+          key="slide_negative_1"
+          style={{
+            width: fullWidth ? '100%' : `${width}px`
+          }}
+        >{children[length - 1]}</li>
+      ));
     }
 
     children.map((child, idx) => itemArray.push((
-      <li className={`slide_item${idx === (currentSlide - 1) ? ' active' : ''}`} key={`slide_${idx}`}>{child}</li>
+      <li
+        className={`slide_item${idx === (currentSlide - 1) ? ' active' : ''}`}
+        key={`slide_${idx}`}
+        style={{
+          width: fullWidth ? '100%' : `${width}px`
+        }}
+      >{child}</li>
     )));
 
     if (isInfinite) {
-      itemArray.push((<li className="slide_item" key="slide_plus_1">{children[0]}</li>));
-      itemArray.push((<li className="slide_item" key="slide_plus_2">{children[1]}</li>));
+      itemArray.push((
+        <li
+          className="slide_item"
+          key="slide_plus_1"
+          style={{
+            width: fullWidth ? '100%' : `${width}px`
+          }}
+        >{children[0]}</li>));
+      itemArray.push((
+        <li
+          className="slide_item"
+          key="slide_plus_2"
+          style={{
+            width: fullWidth ? '100%' : `${width}px`
+          }}
+        >{children[1]}</li>));
     }
 
     return (
@@ -65,21 +106,14 @@ class Carousel extends React.Component {
     const tmpArray = [];
 
     for (let idx = 1; idx <= slideCount; idx++) {
-      tmpArray.push(
-        (
-          <li
-            className={`carousel_navigator_unit${currentSlide === idx ? ' active' : ''}`}
-            key={`dot_navigator_${idx}`}
-          >
-            <span className="unit_dot" />
-          </li>
-        )
-      );
+      tmpArray.push((
+        <li className={`carousel_navigator_unit${currentSlide === idx ? ' active' : ''}`} key={`dot_navigator_${idx}`}>
+          <span className="unit_dot" />
+        </li>
+      ));
     }
     return (
-      <ul className="carousel_navigator type_dot">
-        {tmpArray}
-      </ul>
+      <ul className="carousel_navigator type_dot">{tmpArray}</ul>
     );
   }
 
@@ -119,6 +153,7 @@ Carousel.propTypes = {
   children: PropTypes.node,
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
+  width: PropTypes.number,
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool
