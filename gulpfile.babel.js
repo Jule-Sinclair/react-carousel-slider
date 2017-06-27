@@ -53,9 +53,9 @@ gulp.task('sass', ['css_clean'],
 
 // watch -----------------------------------------------------------------
 gulp.task('style_watch', () => {
-  gulp.watch([`${src_path.css}/**/*.scss`, `${src_path.css}/**/*.sass`], ['style_hash']);
+  gulp.watch([`${src_path.css}/**/*.scss`, `${src_path.css}/**/*.sass`], ['sass']);
 });
 
 gulp.task('watch', ['webpack:dev', 'style_watch']);
 
-gulp.task('dev_build', ['style_hash', 'webpack:dev']);
+gulp.task('dev_build', ['sass', 'webpack:dev']);
