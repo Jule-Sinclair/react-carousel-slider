@@ -13,8 +13,9 @@ class Carousel extends React.Component {
     this.timer = null;
     this.clickSafe = false;
     this.touchObject = {};
+    this.setAfterTransitionFunc = null;
     this.state = {
-      left: 0,
+      dragging: false,
       currentSlide: 0,
       slideCount: 0,
     };
@@ -28,16 +29,35 @@ class Carousel extends React.Component {
     });
   }
 
+  componentDidMount() {
+    const { isInfinite } = this.props;
+
+    if (isInfinite) {
+      this.setAfterTransitionFunc = this.setAfterTransition.bind(this);
+      this.slidingArea.addEventListener('transitionend', this.setAfterTransitionFunc);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.setAfterTransitionFunc) {
+      this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
+    }
+  }
+
   // TouchEvent ----------------------------------------------------------------------------------------------
   onTouchStart(e) {
     this.touchObject = {
       startX: e.touches[0].pageX,
       startY: e.touches[0].pageY
     };
+    this.setState({
+      dragging: true
+    });
     this.handleMouseOver();
   }
 
   onTouchMove(e) {
+    const { width } = this.props;
     const direction = this.swipeDirection(
       this.touchObject.startX,
       e.touches[0].pageX,
@@ -59,7 +79,11 @@ class Carousel extends React.Component {
       length,
       direction
     };
-    this.setSlidingAreaLeft(e.touches[0].pageX - this.touchObject.startX);
+
+    if ((length) > (width * 1.5)) {
+      return;
+    }
+    this.setSlidingAreaLeft(-(length * direction));
   }
 
   onTouchEnd(e) {
@@ -98,7 +122,29 @@ class Carousel extends React.Component {
   }
 
   setSlidingAreaLeft(positionX) {
+    if (positionX === 0) {
+      const { duration } = this.props;
+      this.slidingArea.style.transition = `transform ${duration}s`;
+      this.slidingArea.style.transform = `translate3d(0, 0, 0)`;
+      return;
+    }
     this.slidingArea.style.transform = `translate3d(${positionX}px, 0, 0)`;
+  }
+
+  setAfterTransition() {
+    const { currentSlide, slideCount } = this.state;
+
+    if (currentSlide === (slideCount + 1)) {
+      this.setState({
+        currentSlide: 1
+      });
+    } else if (currentSlide === -1) {
+      this.setState({
+        currentSlide: slideCount
+      });
+    }
+    this.slidingArea.style.transition = 'none';
+    this.setState({ dragging: false });
   }
 
   swipeDirection(x1, x2, y1, y2) {
@@ -132,30 +178,21 @@ class Carousel extends React.Component {
   handleSwipe(e) {
     const { width, children } = this.props;
     const { currentSlide, slideCount } = this.state;
-    const slidesToShow = children.length;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
 
     if (this.touchObject.length > (width / 2)) {
       if (this.touchObject.direction === 1) {
         this.setState({
-          currentSlide: (currentSlide === slideCount) ? 1 : (currentSlide + 1)
+          currentSlide: currentSlide + 1
         });
-        console.log('next slide');
       } else if (this.touchObject.direction === -1) {
         this.setState({
-          currentSlide: (currentSlide === 1) ? slideCount : (currentSlide - 1)
+          currentSlide: currentSlide - 1
         });
-        console.log('prev slide');
       }
-    } else {
-      console.log('not moved');
     }
 
     this.touchObject = {};
-
-    this.setState({
-      dragging: false
-    });
   }
 
   renderSlider() {
@@ -261,7 +298,6 @@ class Carousel extends React.Component {
 
   render() {
     const { children, centerMode } = this.props;
-    const { left } = this.state;
 
     return (
       <div className="carousel_slider_wrapper">
@@ -271,7 +307,7 @@ class Carousel extends React.Component {
           onTouchEnd={e => this.onTouchEnd(e)}
         >
           <ul
-            className="slider handle"
+            className="slider"
             ref={ul => { this.slidingArea = ul; }}
             style={centerMode ? {
               left: '50%',
@@ -292,6 +328,7 @@ Carousel.propTypes = {
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
   width: PropTypes.number,
+  duration: PropTypes.number,
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool,
