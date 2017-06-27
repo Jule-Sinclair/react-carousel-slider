@@ -10,6 +10,7 @@ class App extends React.Component {
           fullWidth={Boolean(true)}
           autoPlay={Boolean(true)}
           autoPlayInterval={500}
+          isInfinite={Boolean(true)}
         >
           <div className="a">a</div>
           <div className="b">b</div>

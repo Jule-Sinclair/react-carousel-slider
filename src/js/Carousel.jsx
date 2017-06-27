@@ -36,22 +36,27 @@ class Carousel extends React.Component {
   }
 
   renderSlider() {
-    const { children } = this.props;
+    const { children, isInfinite } = this.props;
     const { currentSlide } = this.state;
+    const length = children.length;
+    const itemArray = [];
+
+    if (isInfinite) {
+      itemArray.push((<li className="slide_item" key="slide_negative_2">{children[length - 2]}</li>));
+      itemArray.push((<li className="slide_item" key="slide_negative_1">{children[length - 1]}</li>));
+    }
+
+    children.map((child, idx) => itemArray.push((
+      <li className={`slide_item${idx === (currentSlide - 1) ? ' active' : ''}`} key={`slide_${idx}`}>{child}</li>
+    )));
+
+    if (isInfinite) {
+      itemArray.push((<li className="slide_item" key="slide_plus_1">{children[0]}</li>));
+      itemArray.push((<li className="slide_item" key="slide_plus_2">{children[1]}</li>));
+    }
 
     return (
-      <ul
-        className="slider"
-      >
-        {children.map((child, idx) => (
-          <li
-            className={`slide_item${idx === (currentSlide - 1) ? ' active' : ''}`}
-            key={`slide_${idx}`}
-          >
-            {child}
-          </li>
-        ))}
-      </ul>
+      <ul className="slider">{itemArray}</ul>
     );
   }
 
@@ -115,7 +120,8 @@ Carousel.propTypes = {
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
   autoPlay: PropTypes.bool,
-  autoPlayInterval: PropTypes.number
+  autoPlayInterval: PropTypes.number,
+  isInfinite: PropTypes.bool
 };
 
 Carousel.defaultProps = {
