@@ -2,9 +2,12 @@
 
 @include style_reset();
 
-.slider {
-  position: relative; overflow: hidden; white-space: nowrap;
-  .slide_item {
-    display: inline-block;
+.carousel_slider_wrapper {
+  position: relative;
+  .slider {
+    position: absolute; overflow: hidden; white-space: nowrap;
+    .slide_item {
+      display: inline-block;
+    }
   }
 }

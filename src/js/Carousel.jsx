@@ -35,12 +35,26 @@ class Carousel extends React.Component {
     }
   }
 
+  getHorizontalPosition() {
+    const {
+      width,
+      isInfinite
+    } = this.props;
+    const { currentSlide } = this.state;
+    let marginLeft = -((Number(width) * (Number(currentSlide) - 1)) + (Number(width) / 2));
+    if (isInfinite) {
+      marginLeft -= (Number(width) * 2);
+    }
+    return marginLeft;
+  }
+
   renderSlider() {
     const {
       children,
       isInfinite,
       width,
-      fullWidth
+      fullWidth,
+      centerMode
     } = this.props;
     const { currentSlide } = this.state;
     const length = children.length;
@@ -97,7 +111,13 @@ class Carousel extends React.Component {
     }
 
     return (
-      <ul className="slider">{itemArray}</ul>
+      <ul
+        className="slider"
+        style={centerMode ? {
+          left: '50%',
+          marginLeft: this.getHorizontalPosition()
+        } : {}}
+      >{itemArray}</ul>
     );
   }
 
@@ -156,7 +176,8 @@ Carousel.propTypes = {
   width: PropTypes.number,
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
-  isInfinite: PropTypes.bool
+  isInfinite: PropTypes.bool,
+  centerMode: PropTypes.bool
 };
 
 Carousel.defaultProps = {

@@ -11,6 +11,7 @@ class App extends React.Component {
           autoPlayInterval={500}
           isInfinite={Boolean(true)}
           fullWidth={Boolean(false)}
+          centerMode={Boolean(true)}
           width={100}
         >
           <div className="a">a</div>
