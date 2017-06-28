@@ -8,7 +8,7 @@ class App extends React.Component {
         <Carousel
           naviType={CarouselNavigatorType.DOT}
           autoPlay={Boolean(true)}
-          autoPlayInterval={500}
+          autoPlayInterval={2000}
           duration={0.2}
           isInfinite={Boolean(true)}
           fullWidth={Boolean(false)}

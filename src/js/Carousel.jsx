@@ -13,6 +13,7 @@ class Carousel extends React.Component {
     this.timer = null;
     this.setAfterTransitionFunc = null;
     this.setAfterWindowResizeFunc = null;
+    this.autoPlayer = null;
     this.clickSafe = false;
     this.touchObject = {};
     this.state = {
@@ -35,8 +36,10 @@ class Carousel extends React.Component {
   componentDidMount() {
     this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
     this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
+    this.autoPlayer = this._autoPlayer.bind(this);
 
     window.addEventListener('resize', this.setAfterWindowResizeFunc);
+    this.setTimerStart();
   }
 
   componentWillUnmount() {
@@ -57,7 +60,7 @@ class Carousel extends React.Component {
     this.setState({
       dragging: true
     });
-    this.handleMouseOver();
+    this.handleFocusOn();
   }
 
   onTouchMove(e) {
@@ -93,23 +96,44 @@ class Carousel extends React.Component {
   onTouchEnd(e) {
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
+    this.handleFocusOut();
   }
 
   onTouchCancel(e) {
     this.handleSwipe(e);
+    this.handleFocusOut();
   }
 
   // TouchEvent ----------------------------------------------------------------------------------------------
 
+  nextSlide() {
+    const { currentSlide } = this.state;
+    this.setState({
+      currentSlide: currentSlide + 1,
+      currentPositionX: this.getHorizontalPosition(currentSlide + 1)
+    });
+  }
+
+  prevSlide() {
+    const { currentSlide } = this.state;
+    this.setState({
+      currentSlide: currentSlide - 1,
+      currentPositionX: this.getHorizontalPosition(currentSlide - 1)
+    });
+  }
+
   setTimerStart() {
     const { autoPlay, autoPlayInterval } = this.props;
-    const { currentSlide, slideCount } = this.state;
     if (autoPlay) {
       this.timer = setInterval(() => {
-        this.setState({
-          currentSlider: (currentSlide === slideCount) ? 1 : (currentSlide + 1)
-        });
+        this.autoPlayer();
       }, Number(autoPlayInterval));
+    }
+  }
+
+  setTimerStop() {
+    if (this.timer) {
+      clearInterval(this.timer);
     }
   }
 
@@ -175,6 +199,19 @@ class Carousel extends React.Component {
     this.getHorizontalPosition(currentSlide);
   }
 
+  _autoPlayer() {
+    this.setSliderTransition();
+    if (this.props.isInfinite) {
+      this.nextSlide();
+      return;
+    }
+    if (this.state.currentSlide === this.state.slideCount) {
+      this.setTimerStop();
+    } else {
+      this.nextSlide();
+    }
+  }
+
   swipeDirection(x1, x2, y1, y2) {
     let swipeAngle;
     const xDist = x1 - x2;
@@ -197,31 +234,31 @@ class Carousel extends React.Component {
     return 0;
   }
 
-  handleMouseOver() {
+  handleFocusOn() {
     if (this.props.autoPlay) {
-      // 자동 재생 멈춤처리.
+      this.setTimerStop();
+    }
+  }
+
+  handleFocusOut() {
+    if (this.props.autoPlay) {
+      this.setTimerStart();
     }
   }
 
   handleSwipe() {
     const { width } = this.props;
-    const { currentSlide } = this.state;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
     this.setSliderTransition();
     if (!this.clickSafe) {
       return;
     }
     if (this.touchObject.length > (width / 2)) {
-      let targetSlider = null;
       if (this.touchObject.direction === 1) {
-        targetSlider = currentSlide + 1;
+        this.nextSlide();
       } else if (this.touchObject.direction === -1) {
-        targetSlider = currentSlide - 1;
+        this.prevSlide();
       }
-      this.setState({
-        currentSlide: targetSlider,
-        currentPositionX: this.getHorizontalPosition(targetSlider)
-      });
     }
     this.touchObject = {};
   }
