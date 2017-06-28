@@ -11,12 +11,15 @@ class Carousel extends React.Component {
     super();
     this.slidingArea = null;
     this.timer = null;
+    this.setAfterTransitionFunc = null;
+    this.setAfterWindowResizeFunc = null;
     this.clickSafe = false;
     this.touchObject = {};
-    this.setAfterTransitionFunc = null;
     this.state = {
       dragging: false,
-      currentSlide: 0,
+      currentSlide: 1,
+      tempPositionX: undefined,
+      currentPositionX: 0,
       slideCount: 0,
     };
   }
@@ -24,21 +27,25 @@ class Carousel extends React.Component {
   componentWillMount() {
     const { children } = this.props;
     this.setState({
-      currentSlide: 1,
-      slideCount: children.length
+      slideCount: children.length,
+      currentPositionX: this.getHorizontalPosition()
     });
   }
 
   componentDidMount() {
     const { isInfinite } = this.props;
-
+    this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
+    window.addEventListener('resize', this.setAfterWindowResizeFunc);
     if (isInfinite) {
-      this.setAfterTransitionFunc = this.setAfterTransition.bind(this);
+      this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
       this.slidingArea.addEventListener('transitionend', this.setAfterTransitionFunc);
     }
   }
 
   componentWillUnmount() {
+    if (this.setAfterWindowResizeFunc) {
+      window.removeEventListener('resize', this.setAfterWindowResizeFunc);
+    }
     if (this.setAfterTransitionFunc) {
       this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
     }
@@ -87,6 +94,8 @@ class Carousel extends React.Component {
   }
 
   onTouchEnd(e) {
+    const { duration } = this.props;
+    this.slidingArea.style.transition = `transform ${duration}s`;
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
   }
@@ -94,6 +103,7 @@ class Carousel extends React.Component {
   onTouchCancel(e) {
     this.handleSwipe(e);
   }
+
   // TouchEvent ----------------------------------------------------------------------------------------------
 
   setTimerStart() {
@@ -113,27 +123,32 @@ class Carousel extends React.Component {
       width,
       isInfinite
     } = this.props;
-    const { currentSlide } = this.state;
-    let marginLeft = -((Number(width) * (Number(currentSlide) - 1)) + (Number(width) / 2));
+    const {
+      currentSlide,
+    } = this.state;
+    const windowWidth = window.innerWidth;
+
+    let positionX = (windowWidth / 2) - ((Number(width) * (Number(currentSlide) - 1)) + (Number(width) / 2));
     if (isInfinite) {
-      marginLeft -= (Number(width) * 2);
+      positionX -= (Number(width) * 2);
     }
-    return marginLeft;
+
+    this.setState({ currentPositionX: positionX });
+    return positionX;
   }
 
   setSlidingAreaLeft(positionX) {
+    const { currentPositionX } = this.state;
     if (positionX === 0) {
-      const { duration } = this.props;
-      this.slidingArea.style.transition = `transform ${duration}s`;
-      this.slidingArea.style.transform = `translate3d(0, 0, 0)`;
+      this.setState({ tempPositionX: undefined });
       return;
     }
-    this.slidingArea.style.transform = `translate3d(${positionX}px, 0, 0)`;
+    this.setState({ tempPositionX: currentPositionX + positionX });
   }
 
-  setAfterTransition() {
+  _setAfterTransition() {
     const { currentSlide, slideCount } = this.state;
-
+    this.slidingArea.style.transition = 'none';
     if (currentSlide === (slideCount + 1)) {
       this.setState({
         currentSlide: 1
@@ -143,8 +158,11 @@ class Carousel extends React.Component {
         currentSlide: slideCount
       });
     }
-    this.slidingArea.style.transition = 'none';
     this.setState({ dragging: false });
+  }
+
+  _setAfterWindowResize() {
+    this.getHorizontalPosition();
   }
 
   swipeDirection(x1, x2, y1, y2) {
@@ -175,10 +193,13 @@ class Carousel extends React.Component {
     }
   }
 
-  handleSwipe(e) {
-    const { width, children } = this.props;
-    const { currentSlide, slideCount } = this.state;
+  handleSwipe() {
+    const { width } = this.props;
+    const { currentSlide } = this.state;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
+    if (!this.clickSafe) {
+      return;
+    }
 
     if (this.touchObject.length > (width / 2)) {
       if (this.touchObject.direction === 1) {
@@ -190,8 +211,10 @@ class Carousel extends React.Component {
           currentSlide: currentSlide - 1
         });
       }
+      this.setState({
+        currentPositionX: this.getHorizontalPosition()
+      });
     }
-
     this.touchObject = {};
   }
 
@@ -201,7 +224,6 @@ class Carousel extends React.Component {
       isInfinite,
       width,
       fullWidth,
-      centerMode
     } = this.props;
     const { currentSlide } = this.state;
     const length = children.length;
@@ -297,7 +319,8 @@ class Carousel extends React.Component {
   }
 
   render() {
-    const { children, centerMode } = this.props;
+    const { currentPositionX, tempPositionX } = this.state;
+    const { centerMode } = this.props;
 
     return (
       <div className="carousel_slider_wrapper">
@@ -310,8 +333,7 @@ class Carousel extends React.Component {
             className="slider"
             ref={ul => { this.slidingArea = ul; }}
             style={centerMode ? {
-              left: '50%',
-              marginLeft: this.getHorizontalPosition(),
+              transform: `translate3d(${tempPositionX !== undefined ? tempPositionX : currentPositionX}px, 0, 0)`,
             } : {}}
           >
             {this.renderSlider()}
