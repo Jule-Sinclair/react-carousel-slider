@@ -28,18 +28,15 @@ class Carousel extends React.Component {
     const { children } = this.props;
     this.setState({
       slideCount: children.length,
-      currentPositionX: this.getHorizontalPosition()
+      currentPositionX: this.getHorizontalPosition(1)
     });
   }
 
   componentDidMount() {
-    const { isInfinite } = this.props;
     this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
+    this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
+
     window.addEventListener('resize', this.setAfterWindowResizeFunc);
-    if (isInfinite) {
-      this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
-      this.slidingArea.addEventListener('transitionend', this.setAfterTransitionFunc);
-    }
   }
 
   componentWillUnmount() {
@@ -94,8 +91,6 @@ class Carousel extends React.Component {
   }
 
   onTouchEnd(e) {
-    const { duration } = this.props;
-    this.slidingArea.style.transition = `transform ${duration}s`;
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
   }
@@ -118,17 +113,14 @@ class Carousel extends React.Component {
     }
   }
 
-  getHorizontalPosition() {
+  getHorizontalPosition(targetSlider) {
     const {
       width,
       isInfinite
     } = this.props;
-    const {
-      currentSlide,
-    } = this.state;
     const windowWidth = window.innerWidth;
 
-    let positionX = (windowWidth / 2) - ((Number(width) * (Number(currentSlide) - 1)) + (Number(width) / 2));
+    let positionX = (windowWidth / 2) - ((Number(width) * (Number(targetSlider) - 1)) + (Number(width) / 2));
     if (isInfinite) {
       positionX -= (Number(width) * 2);
     }
@@ -146,23 +138,41 @@ class Carousel extends React.Component {
     this.setState({ tempPositionX: currentPositionX + positionX });
   }
 
+  setSliderTransition() {
+    const { duration, isInfinite } = this.props;
+    this.slidingArea.style.transition = `transform ${duration}s`;
+
+    if (isInfinite) {
+      this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
+      this.slidingArea.addEventListener('transitionend', this.setAfterTransitionFunc);
+    }
+  }
+
+  removeSliderTransition() {
+    this.slidingArea.style.transition = `none`;
+    this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
+  }
+
   _setAfterTransition() {
     const { currentSlide, slideCount } = this.state;
-    this.slidingArea.style.transition = 'none';
+    this.removeSliderTransition();
     if (currentSlide === (slideCount + 1)) {
       this.setState({
-        currentSlide: 1
+        currentSlide: 1,
+        currentPositionX: this.getHorizontalPosition(1)
       });
     } else if (currentSlide === -1) {
       this.setState({
-        currentSlide: slideCount
+        currentSlide: slideCount,
+        currentPositionX: this.getHorizontalPosition(-1)
       });
     }
     this.setState({ dragging: false });
   }
 
   _setAfterWindowResize() {
-    this.getHorizontalPosition();
+    const { currentSlide } = this.state;
+    this.getHorizontalPosition(currentSlide);
   }
 
   swipeDirection(x1, x2, y1, y2) {
@@ -197,22 +207,20 @@ class Carousel extends React.Component {
     const { width } = this.props;
     const { currentSlide } = this.state;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
+    this.setSliderTransition();
     if (!this.clickSafe) {
       return;
     }
-
     if (this.touchObject.length > (width / 2)) {
+      let targetSlider = null;
       if (this.touchObject.direction === 1) {
-        this.setState({
-          currentSlide: currentSlide + 1
-        });
+        targetSlider = currentSlide + 1;
       } else if (this.touchObject.direction === -1) {
-        this.setState({
-          currentSlide: currentSlide - 1
-        });
+        targetSlider = currentSlide - 1;
       }
       this.setState({
-        currentPositionX: this.getHorizontalPosition()
+        currentSlide: targetSlider,
+        currentPositionX: this.getHorizontalPosition(targetSlider)
       });
     }
     this.touchObject = {};
