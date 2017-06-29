@@ -27,10 +27,11 @@ class Carousel extends React.Component {
   }
 
   componentWillMount() {
-    const { children } = this.props;
+    const { children, targetSlide } = this.props;
     this.setState({
       slideCount: children.length,
-      currentPositionX: this.getHorizontalPosition(1)
+      currentSlide: targetSlide,
+      currentPositionX: this.getHorizontalPosition(targetSlide)
     });
   }
 
@@ -41,10 +42,6 @@ class Carousel extends React.Component {
 
     window.addEventListener('resize', this.setAfterWindowResizeFunc);
     this.setTimerStart();
-  }
-
-  componentWillUpdate(nextProps) {
-    const { targetSlide } = nextProps;
   }
 
   componentWillUnmount() {
@@ -486,7 +483,8 @@ Carousel.propTypes = {
 };
 
 Carousel.defaultProps = {
-  autoPlayInterval: 1000
+  autoPlayInterval: 1000,
+  targetSlide: 1
 };
 
 export default Carousel;

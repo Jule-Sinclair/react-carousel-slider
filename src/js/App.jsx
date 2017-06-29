@@ -20,6 +20,7 @@ class App extends React.Component {
           fullWidth={Boolean(false)}
           centerMode={Boolean(true)}
           width={100}
+          targetSlide={2}
         >
           <div className="a" style={divStyle}>a</div>
           <div className="b" style={divStyle}>b</div>
