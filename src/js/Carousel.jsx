@@ -28,6 +28,7 @@ class Carousel extends React.Component {
 
   componentWillMount() {
     const { children, targetSlide } = this.props;
+
     this.setState({
       slideCount: children.length,
       currentSlide: targetSlide,
@@ -53,8 +54,12 @@ class Carousel extends React.Component {
     }
   }
 
+
   // TouchEvent ----------------------------------------------------------------------------------------------
   onTouchStart(e) {
+    if (this.state.dragging) {
+      return;
+    }
     this.touchObject = {
       startX: e.touches[0].pageX,
       startY: e.touches[0].pageY
@@ -64,7 +69,6 @@ class Carousel extends React.Component {
   }
 
   onTouchMove(e) {
-    const { width } = this.props;
     const direction = this.swipeDirection(
       this.touchObject.startX,
       e.touches[0].pageX,
@@ -91,22 +95,15 @@ class Carousel extends React.Component {
   }
 
   onTouchEnd(e) {
-    if (!this.state.dragging) {
-      return;
-    }
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
     this.handleFocusOut();
   }
 
   onTouchCancel(e) {
-    if (!this.state.dragging) {
-      return;
-    }
     this.handleSwipe(e);
     this.handleFocusOut();
   }
-
   // TouchEvent ----------------------------------------------------------------------------------------------
 
 
@@ -120,6 +117,9 @@ class Carousel extends React.Component {
   }
 
   onMouseDown(e) {
+    if (this.state.dragging) {
+      return;
+    }
     this.touchObject = {
       startX: e.clientX,
       startY: e.clientY
@@ -128,9 +128,6 @@ class Carousel extends React.Component {
   }
 
   onMouseMove(e) {
-    if (!this.state.dragging) {
-      return;
-    }
     const direction = this.swipeDirection(
       this.touchObject.startX,
       e.clientX,
@@ -156,18 +153,12 @@ class Carousel extends React.Component {
   }
 
   onMouseUp(e) {
-    if (!this.state.dragging) {
-      return;
-    }
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
     this.handleFocusOut();
   }
 
   onMouseLeave(e) {
-    if (!this.state.dragging) {
-      return;
-    }
     this.handleSwipe(e);
     this.handleFocusOut();
   }
@@ -234,57 +225,31 @@ class Carousel extends React.Component {
   }
 
   nextSlide() {
-    const { currentSlide } = this.state;
+    const { isInfinite } = this.props;
+    const { currentSlide, slideCount } = this.state;
+
+    if (!isInfinite && currentSlide === slideCount) {
+      return;
+    }
+
     this.setState({
-      dragging: false,
       currentSlide: currentSlide + 1,
       currentPositionX: this.getHorizontalPosition(currentSlide + 1)
     });
   }
 
   prevSlide() {
+    const { isInfinite } = this.props;
     const { currentSlide } = this.state;
+
+    if (!isInfinite && currentSlide === 1) {
+      return;
+    }
+
     this.setState({
-      dragging: false,
       currentSlide: currentSlide - 1,
       currentPositionX: this.getHorizontalPosition(currentSlide - 1)
     });
-  }
-
-  _setAfterTransition() {
-    const { currentSlide, slideCount } = this.state;
-    this.removeSliderTransition();
-
-    if (currentSlide === (slideCount + 1)) {
-      this.setState({
-        currentSlide: 1,
-        currentPositionX: this.getHorizontalPosition(1)
-      });
-    } else if (currentSlide === 0) {
-      this.setState({
-        currentSlide: slideCount,
-        currentPositionX: this.getHorizontalPosition(slideCount)
-      });
-    }
-    this.setState({ dragging: false });
-  }
-
-  _setAfterWindowResize() {
-    const { currentSlide } = this.state;
-    this.getHorizontalPosition(currentSlide);
-  }
-
-  _autoPlayer() {
-    this.setSliderTransition();
-    if (this.props.isInfinite) {
-      this.nextSlide();
-      return;
-    }
-    if (this.state.currentSlide === this.state.slideCount) {
-      this.setTimerStop();
-    } else {
-      this.nextSlide();
-    }
   }
 
   swipeDirection(x1, x2, y1, y2) {
@@ -335,8 +300,49 @@ class Carousel extends React.Component {
         this.prevSlide();
       }
     }
+    this.setState({ dragging: false });
     this.touchObject = {};
   }
+
+
+  // event bind based Functions ------------------------------------------------------------
+  _setAfterTransition() {
+    const { currentSlide, slideCount } = this.state;
+    this.removeSliderTransition();
+
+    if (currentSlide === (slideCount + 1)) {
+      this.setState({
+        currentSlide: 1,
+        currentPositionX: this.getHorizontalPosition(1)
+      });
+    } else if (currentSlide === 0) {
+      this.setState({
+        currentSlide: slideCount,
+        currentPositionX: this.getHorizontalPosition(slideCount)
+      });
+    }
+    this.setState({ dragging: false });
+  }
+
+  _setAfterWindowResize() {
+    const { currentSlide } = this.state;
+    this.getHorizontalPosition(currentSlide);
+  }
+
+  _autoPlayer() {
+    this.setSliderTransition();
+    if (this.props.isInfinite) {
+      this.nextSlide();
+      return;
+    }
+    if (this.state.currentSlide === this.state.slideCount) {
+      this.setTimerStop();
+    } else {
+      this.nextSlide();
+    }
+  }
+  // bindable Functions ------------------------------------------------------------
+
 
   renderSlider() {
     const {
