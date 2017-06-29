@@ -27,10 +27,9 @@ class Carousel extends React.Component {
   }
 
   componentWillMount() {
-    const { children, autoPlay } = this.props;
+    const { children } = this.props;
     this.setState({
       slideCount: children.length,
-      autoPlaying: autoPlay,
       currentPositionX: this.getHorizontalPosition(1)
     });
   }
@@ -42,6 +41,10 @@ class Carousel extends React.Component {
 
     window.addEventListener('resize', this.setAfterWindowResizeFunc);
     this.setTimerStart();
+  }
+
+  componentWillUpdate(nextProps) {
+    const { targetSlide } = nextProps;
   }
 
   componentWillUnmount() {
@@ -87,9 +90,6 @@ class Carousel extends React.Component {
       direction
     };
 
-    if ((length) > (width * 1.5)) {
-      return;
-    }
     this.setSlidingAreaLeft(-(length * direction));
   }
 
@@ -174,8 +174,9 @@ class Carousel extends React.Component {
     this.handleSwipe(e);
     this.handleFocusOut();
   }
-
   // MouseEvent ----------------------------------------------------------------------------------------------
+
+
   setTimerStart() {
     const { autoPlay, autoPlayInterval } = this.props;
     const { autoPlaying } = this.state;
@@ -256,15 +257,16 @@ class Carousel extends React.Component {
   _setAfterTransition() {
     const { currentSlide, slideCount } = this.state;
     this.removeSliderTransition();
+
     if (currentSlide === (slideCount + 1)) {
       this.setState({
         currentSlide: 1,
         currentPositionX: this.getHorizontalPosition(1)
       });
-    } else if (currentSlide === -1) {
+    } else if (currentSlide === 0) {
       this.setState({
         currentSlide: slideCount,
-        currentPositionX: this.getHorizontalPosition(-1)
+        currentPositionX: this.getHorizontalPosition(slideCount)
       });
     }
     this.setState({ dragging: false });
@@ -373,8 +375,8 @@ class Carousel extends React.Component {
 
     children.map((child, idx) => itemArray.push((
       <li
-        className={`slide_item${idx === (currentSlide - 1) ? ' active' : ''}`}
-        key={`slide_${idx}`}
+        className={`slide_item${(idx + 1) === currentSlide ? ' active' : ''}`}
+        key={`slide_${idx + 1}`}
         style={{
           width: fullWidth ? '100%' : `${width}px`
         }}
@@ -479,7 +481,8 @@ Carousel.propTypes = {
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool,
-  centerMode: PropTypes.bool
+  centerMode: PropTypes.bool,
+  targetSlide: PropTypes.number
 };
 
 Carousel.defaultProps = {
