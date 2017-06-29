@@ -91,10 +91,10 @@ class Carousel extends React.Component {
       length,
       direction
     };
+
     if (length > 200) {
       slidingLength = 200;
     }
-
     this.setSlidingAreaLeft(-(slidingLength * direction));
   }
 
@@ -304,7 +304,6 @@ class Carousel extends React.Component {
         this.prevSlide();
       }
     }
-    this.setState({ dragging: false });
     this.touchObject = {};
   }
 
