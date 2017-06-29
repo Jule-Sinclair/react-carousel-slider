@@ -22,13 +22,15 @@ class Carousel extends React.Component {
       tempPositionX: undefined,
       currentPositionX: 0,
       slideCount: 0,
+      autoPlaying: false
     };
   }
 
   componentWillMount() {
-    const { children } = this.props;
+    const { children, autoPlay } = this.props;
     this.setState({
       slideCount: children.length,
+      autoPlaying: autoPlay,
       currentPositionX: this.getHorizontalPosition(1)
     });
   }
@@ -57,9 +59,7 @@ class Carousel extends React.Component {
       startX: e.touches[0].pageX,
       startY: e.touches[0].pageY
     };
-    this.setState({
-      dragging: true
-    });
+    this.setState({ dragging: true });
     this.handleFocusOn();
   }
 
@@ -94,46 +94,104 @@ class Carousel extends React.Component {
   }
 
   onTouchEnd(e) {
+    if (!this.state.dragging) {
+      return;
+    }
     this.setSlidingAreaLeft(0);
     this.handleSwipe(e);
     this.handleFocusOut();
   }
 
   onTouchCancel(e) {
+    if (!this.state.dragging) {
+      return;
+    }
     this.handleSwipe(e);
     this.handleFocusOut();
   }
 
   // TouchEvent ----------------------------------------------------------------------------------------------
 
-  nextSlide() {
-    const { currentSlide } = this.state;
-    this.setState({
-      currentSlide: currentSlide + 1,
-      currentPositionX: this.getHorizontalPosition(currentSlide + 1)
-    });
+
+  // MouseEvent ----------------------------------------------------------------------------------------------
+  onMouseOver() {
+    this.handleFocusOn();
   }
 
-  prevSlide() {
-    const { currentSlide } = this.state;
-    this.setState({
-      currentSlide: currentSlide - 1,
-      currentPositionX: this.getHorizontalPosition(currentSlide - 1)
-    });
+  onMouseOut() {
+    this.handleFocusOut();
   }
 
+  onMouseDown(e) {
+    this.touchObject = {
+      startX: e.clientX,
+      startY: e.clientY
+    };
+    this.setState({ dragging: true });
+  }
+
+  onMouseMove(e) {
+    if (!this.state.dragging) {
+      return;
+    }
+    const direction = this.swipeDirection(
+      this.touchObject.startX,
+      e.clientX,
+      this.touchObject.startY,
+      e.clientY
+    );
+
+    if (direction !== 0) {
+      e.preventDefault();
+    }
+
+    const length = Math.round(Math.sqrt((e.clientX - this.touchObject.startX) ** 2));
+
+    this.touchObject = {
+      startX: this.touchObject.startX,
+      startY: this.touchObject.startY,
+      endX: e.clientX,
+      endY: e.clientY,
+      length,
+      direction
+    };
+    this.setSlidingAreaLeft(-(length * direction));
+  }
+
+  onMouseUp(e) {
+    if (!this.state.dragging) {
+      return;
+    }
+    this.setSlidingAreaLeft(0);
+    this.handleSwipe(e);
+    this.handleFocusOut();
+  }
+
+  onMouseLeave(e) {
+    if (!this.state.dragging) {
+      return;
+    }
+    this.handleSwipe(e);
+    this.handleFocusOut();
+  }
+
+  // MouseEvent ----------------------------------------------------------------------------------------------
   setTimerStart() {
     const { autoPlay, autoPlayInterval } = this.props;
-    if (autoPlay) {
+    const { autoPlaying } = this.state;
+    if (autoPlay && !autoPlaying) {
       this.timer = setInterval(() => {
         this.autoPlayer();
       }, Number(autoPlayInterval));
+      this.setState({ autoPlaying: true });
     }
   }
 
   setTimerStop() {
-    if (this.timer) {
+    const { autoPlaying } = this.state;
+    if (autoPlaying) {
       clearInterval(this.timer);
+      this.setState({ autoPlaying: false });
     }
   }
 
@@ -175,6 +233,24 @@ class Carousel extends React.Component {
   removeSliderTransition() {
     this.slidingArea.style.transition = `none`;
     this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
+  }
+
+  nextSlide() {
+    const { currentSlide } = this.state;
+    this.setState({
+      dragging: false,
+      currentSlide: currentSlide + 1,
+      currentPositionX: this.getHorizontalPosition(currentSlide + 1)
+    });
+  }
+
+  prevSlide() {
+    const { currentSlide } = this.state;
+    this.setState({
+      dragging: false,
+      currentSlide: currentSlide - 1,
+      currentPositionX: this.getHorizontalPosition(currentSlide - 1)
+    });
   }
 
   _setAfterTransition() {
@@ -369,21 +445,25 @@ class Carousel extends React.Component {
 
     return (
       <div className="carousel_slider_wrapper">
-        <div
+        <ul
+          className="slider"
+          ref={ul => { this.slidingArea = ul; }}
           onTouchStart={e => this.onTouchStart(e)}
           onTouchMove={e => this.onTouchMove(e)}
           onTouchEnd={e => this.onTouchEnd(e)}
+          onTouchCancel={e => this.onTouchCancel(e)}
+          onMouseOver={e => this.onMouseOver(e)}
+          onMouseOut={e => this.onMouseOut(e)}
+          onMouseDown={e => this.onMouseDown(e)}
+          onMouseMove={e => this.onMouseMove(e)}
+          onMouseUp={e => this.onMouseUp(e)}
+          onMouseLeave={e => this.onMouseLeave(e)}
+          style={centerMode ? {
+            transform: `translate3d(${tempPositionX !== undefined ? tempPositionX : currentPositionX}px, 0, 0)`,
+          } : {}}
         >
-          <ul
-            className="slider"
-            ref={ul => { this.slidingArea = ul; }}
-            style={centerMode ? {
-              transform: `translate3d(${tempPositionX !== undefined ? tempPositionX : currentPositionX}px, 0, 0)`,
-            } : {}}
-          >
-            {this.renderSlider()}
-          </ul>
-        </div>
+          {this.renderSlider()}
+        </ul>
         {this.renderNavigator()}
       </div>
     );
