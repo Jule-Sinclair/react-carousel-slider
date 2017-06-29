@@ -425,11 +425,21 @@ class Carousel extends React.Component {
   }
 
   renderNumberNavigator() {
+    const { isInfinite } = this.props;
     const { currentSlide, slideCount } = this.state;
+    let currentSlideNumber = currentSlide;
+
+    if (isInfinite) {
+      if (currentSlideNumber > slideCount) {
+        currentSlideNumber = 1;
+      } else if (currentSlideNumber < 1) {
+        currentSlideNumber = slideCount;
+      }
+    }
 
     return (
       <p className="carousel_navigator type_number">
-        <span className="current_slide_number">{currentSlide}</span>/
+        <span className="current_slide_number">{currentSlideNumber}</span>/
         <span className="total_slide_number">{slideCount}</span>
       </p>
     );

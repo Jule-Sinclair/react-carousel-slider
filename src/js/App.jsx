@@ -12,7 +12,7 @@ class App extends React.Component {
     return (
       <div>
         <Carousel
-          naviType={CarouselNavigatorType.DOT}
+          naviType={CarouselNavigatorType.NUMBER}
           autoPlay={Boolean(true)}
           autoPlayInterval={2000}
           duration={200}
