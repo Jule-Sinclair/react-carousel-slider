@@ -210,8 +210,8 @@ class Carousel extends React.Component {
   }
 
   setSliderTransition() {
-    const { duration, isInfinite } = this.props;
-    this.slidingArea.style.transition = `transform ${duration}s`;
+    const { duration, isInfinite, cssEase } = this.props;
+    this.slidingArea.style.transition = `transform ${duration}ms ${cssEase}`;
 
     if (isInfinite) {
       this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
@@ -485,12 +485,14 @@ Carousel.propTypes = {
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool,
   centerMode: PropTypes.bool,
-  targetSlide: PropTypes.number
+  targetSlide: PropTypes.number,
+  cssEase: PropTypes.string,
 };
 
 Carousel.defaultProps = {
   autoPlayInterval: 1000,
-  targetSlide: 1
+  targetSlide: 1,
+  cssEase: 'cubic-bezier(0.420, 0.000, 0.580, 1.000)'
 };
 
 export default Carousel;
