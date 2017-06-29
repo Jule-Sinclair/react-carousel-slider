@@ -81,6 +81,7 @@ class Carousel extends React.Component {
     }
 
     const length = Math.round(Math.sqrt((e.touches[0].pageX - this.touchObject.startX) ** 2));
+    let slidingLength = length;
 
     this.touchObject = {
       startX: this.touchObject.startX,
@@ -90,8 +91,11 @@ class Carousel extends React.Component {
       length,
       direction
     };
+    if (length > 200) {
+      slidingLength = 200;
+    }
 
-    this.setSlidingAreaLeft(-(length * direction));
+    this.setSlidingAreaLeft(-(slidingLength * direction));
   }
 
   onTouchEnd(e) {
