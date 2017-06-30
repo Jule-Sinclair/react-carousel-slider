@@ -517,7 +517,6 @@ Carousel.propTypes = {
   isInfinite: PropTypes.bool,
   targetSlide: PropTypes.number,
   cssEase: PropTypes.string,
-  slideToShow: PropTypes.number,
 };
 
 Carousel.defaultProps = {
@@ -530,7 +529,6 @@ Carousel.defaultProps = {
   isInfinite: Boolean(true),
   targetSlide: 1,
   cssEase: 'cubic-bezier(0.420, 0.000, 0.580, 1.000)',
-  slideToShow: 1,
 };
 
 export default Carousel;
