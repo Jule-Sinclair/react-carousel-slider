@@ -11,7 +11,6 @@ export const CAROUSEL_AUTO_WIDTH = -999;
 class Carousel extends React.Component {
   constructor() {
     super();
-    this.slideWrapper = null;
     this.slidingArea = null;
     this.timer = null;
     this.setAfterTransitionFunc = null;
@@ -485,7 +484,6 @@ class Carousel extends React.Component {
     return (
       <div
         className="carousel_slider_wrapper"
-        ref={div => { this.slideWrapper = div; }}
       >
         <ul
           className="slider"
