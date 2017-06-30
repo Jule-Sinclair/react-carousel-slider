@@ -11,6 +11,7 @@ export const CAROUSEL_AUTO_WIDTH = -999;
 class Carousel extends React.Component {
   constructor() {
     super();
+    this.slideWrapper = null;
     this.slidingArea = null;
     this.timer = null;
     this.setAfterTransitionFunc = null;
@@ -201,9 +202,9 @@ class Carousel extends React.Component {
       width,
       isInfinite
     } = this.props;
-    const windowWidth = window.innerWidth;
+    const wrapperWidth = this.slideWrapper.clientWidth;
 
-    let positionX = (windowWidth / 2) - ((Number(width) * (Number(targetSlider) - 1)) + (Number(width) / 2));
+    let positionX = (wrapperWidth / 2) - ((Number(width) * (Number(targetSlider) - 1)) + (Number(width) / 2));
     if (isInfinite) {
       positionX -= (Number(width) * 2);
     }
@@ -476,7 +477,10 @@ class Carousel extends React.Component {
     const { currentPositionX, tempPositionX } = this.state;
 
     return (
-      <div className="carousel_slider_wrapper">
+      <div
+        className="carousel_slider_wrapper"
+        ref={div => { this.slideWrapper = div; }}
+      >
         <ul
           className="slider"
           ref={ul => { this.slidingArea = ul; }}
