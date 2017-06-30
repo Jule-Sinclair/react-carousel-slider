@@ -6,8 +6,6 @@ export const CarouselNavigatorType = {
   NUMBER: '1'
 };
 
-export const CAROUSEL_AUTO_WIDTH = -999;
-
 class Carousel extends React.Component {
   constructor() {
     super();
@@ -198,7 +196,7 @@ class Carousel extends React.Component {
 
   getHorizontalPosition(targetSlider) {
     const {
-      width,
+      elementWidth,
       isInfinite,
       fullWidth,
       containerWidth
@@ -209,9 +207,9 @@ class Carousel extends React.Component {
       wrapperWidth = window.innerWidth;
     }
 
-    let positionX = (wrapperWidth / 2) - ((Number(width) * (Number(targetSlider) - 1)) + (Number(width) / 2));
+    let positionX = (wrapperWidth / 2) - ((Number(elementWidth) * (Number(targetSlider) - 1)) + (Number(elementWidth) / 2));
     if (isInfinite) {
-      positionX -= (Number(width) * 2);
+      positionX -= (Number(elementWidth) * 2);
     }
 
     this.setState({ currentPositionX: positionX });
@@ -305,13 +303,13 @@ class Carousel extends React.Component {
   }
 
   handleSwipe() {
-    const { width } = this.props;
+    const { elementWidth } = this.props;
     this.clickSafe = (typeof (this.touchObject.length) !== 'undefined' && this.touchObject.length > 44);
     this.setSliderTransition();
     if (!this.clickSafe) {
       return;
     }
-    if (this.touchObject.length > (width / 2)) {
+    if (this.touchObject.length > (elementWidth / 2)) {
       if (this.touchObject.direction === 1) {
         this.nextSlide();
       } else if (this.touchObject.direction === -1) {
@@ -373,7 +371,7 @@ class Carousel extends React.Component {
     const {
       children,
       isInfinite,
-      width,
+      elementWidth,
       fullWidth,
     } = this.props;
     const { currentSlide } = this.state;
@@ -383,10 +381,8 @@ class Carousel extends React.Component {
 
     if (fullWidth) {
       itemWidth = '100%';
-    } else if (width === CAROUSEL_AUTO_WIDTH) {
-      itemWidth = 'auto';
     } else {
-      itemWidth = `${width}px`;
+      itemWidth = `${elementWidth}px`;
     }
 
     if (isInfinite) {
@@ -515,7 +511,7 @@ Carousel.propTypes = {
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
   containerWidth: PropTypes.number,
-  width: PropTypes.number,
+  elementWidth: PropTypes.number.isRequired,
   duration: PropTypes.number,
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
@@ -528,7 +524,6 @@ Carousel.defaultProps = {
   naviType: CarouselNavigatorType.DOT,
   fullWidth: Boolean(true),
   containerWidth: window.innerWidth,
-  width: CAROUSEL_AUTO_WIDTH,
   duration: 200,
   autoPlay: Boolean(true),
   autoPlayInterval: 1000,

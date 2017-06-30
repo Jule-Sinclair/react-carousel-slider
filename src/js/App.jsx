@@ -14,7 +14,8 @@ class App extends React.Component {
         <Carousel
           naviType={CarouselNavigatorType.NUMBER}
           fullWidth={Boolean(false)}
-          width={100}
+          containerWidth={window.innerWidth}
+          elementWidth={100}
           duration={200}
           autoPlay={Boolean(true)}
           autoPlayInterval={2000}
