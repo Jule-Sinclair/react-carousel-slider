@@ -28,6 +28,14 @@ class Carousel extends React.Component {
     };
   }
 
+  componentWillMount() {
+    this.setState({
+      slideCount: this.props.children.length,
+      currentSlide: this.props.targetSlide,
+      currentPositionX: this.getHorizontalPosition(this.props.targetSlide)
+    });
+  }
+
   componentDidMount() {
     this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
     this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
