@@ -200,9 +200,15 @@ class Carousel extends React.Component {
   getHorizontalPosition(targetSlider) {
     const {
       width,
-      isInfinite
+      isInfinite,
+      fullWidth,
+      containerWidth
     } = this.props;
-    const wrapperWidth = this.slideWrapper.clientWidth;
+
+    let wrapperWidth = containerWidth;
+    if (fullWidth) {
+      wrapperWidth = window.innerWidth;
+    }
 
     let positionX = (wrapperWidth / 2) - ((Number(width) * (Number(targetSlider) - 1)) + (Number(width) / 2));
     if (isInfinite) {
@@ -510,6 +516,7 @@ Carousel.propTypes = {
   children: PropTypes.node,
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
+  containerWidth: PropTypes.number,
   width: PropTypes.number,
   duration: PropTypes.number,
   autoPlay: PropTypes.bool,
@@ -522,6 +529,7 @@ Carousel.propTypes = {
 Carousel.defaultProps = {
   naviType: CarouselNavigatorType.DOT,
   fullWidth: Boolean(true),
+  containerWidth: window.innerWidth,
   width: CAROUSEL_AUTO_WIDTH,
   duration: 200,
   autoPlay: Boolean(true),
