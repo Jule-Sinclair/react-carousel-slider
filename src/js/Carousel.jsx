@@ -13,6 +13,8 @@ class Carousel extends React.Component {
     this.timer = null;
     this.setAfterTransitionFunc = null;
     this.setAfterWindowResizeFunc = null;
+    this.windowFocusOnFunc = null;
+    this.windowFocusOutFunc = null;
     this.autoPlayer = null;
     this.clickSafe = false;
     this.touchObject = {};
@@ -39,9 +41,13 @@ class Carousel extends React.Component {
   componentDidMount() {
     this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
     this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
+    this.windowFocusOnFunc = this._windowFocusOn.bind(this);
+    this.windowFocusOutFunc = this._windowFocusOut.bind(this);
     this.autoPlayer = this._autoPlayer.bind(this);
 
     window.addEventListener('resize', this.setAfterWindowResizeFunc);
+    window.addEventListener('focus', this.windowFocusOnFunc);
+    window.addEventListener('blur', this.windowFocusOutFunc);
     this.setTimerStart();
   }
 
@@ -344,7 +350,15 @@ class Carousel extends React.Component {
       this.nextSlide();
     }
   }
-  // bindable Functions ------------------------------------------------------------
+
+  _windowFocusOn() {
+    this.handleFocusOut();
+  }
+
+  _windowFocusOut() {
+    this.handleFocusOn();
+  }
+  // event bind based Functions ------------------------------------------------------------
 
 
   renderSlider() {
