@@ -58,6 +58,9 @@ class Carousel extends React.Component {
     if (this.setAfterTransitionFunc) {
       this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
     }
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
   }
 
 
@@ -82,7 +85,7 @@ class Carousel extends React.Component {
       e.touches[0].pageY
     );
 
-    if (direction !== 0) {
+    if (direction !== 0 || this.touchObject.length > 44) {
       e.preventDefault();
     }
 
@@ -145,7 +148,7 @@ class Carousel extends React.Component {
       e.clientY
     );
 
-    if (direction !== 0) {
+    if (direction !== 0 || this.touchObject.length > 44) {
       e.preventDefault();
     }
 
@@ -190,6 +193,7 @@ class Carousel extends React.Component {
     const { autoPlaying } = this.state;
     if (autoPlaying) {
       clearInterval(this.timer);
+      this.timer = false;
       this.setState({ autoPlaying: false });
     }
   }
@@ -227,6 +231,9 @@ class Carousel extends React.Component {
 
   setSliderTransition() {
     const { duration, isInfinite, cssEase } = this.props;
+    if (this.slidingArea === null || this.slidingArea === undefined) {
+      return;
+    }
     this.slidingArea.style.transition = `transform ${duration}ms ${cssEase}`;
 
     if (isInfinite) {
