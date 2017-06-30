@@ -6,6 +6,8 @@ export const CarouselNavigatorType = {
   NUMBER: '1'
 };
 
+export const CAROUSEL_AUTO_WIDTH = -999;
+
 class Carousel extends React.Component {
   constructor() {
     super();
@@ -371,24 +373,29 @@ class Carousel extends React.Component {
     const { currentSlide } = this.state;
     const length = children.length;
     const itemArray = [];
+    let itemWidth = '';
+
+    if (fullWidth) {
+      itemWidth = '100%';
+    } else if (width === CAROUSEL_AUTO_WIDTH) {
+      itemWidth = 'auto';
+    } else {
+      itemWidth = `${width}px`;
+    }
 
     if (isInfinite) {
       itemArray.push((
         <li
           className="slide_item"
           key="slide_negative_2"
-          style={{
-            width: fullWidth ? '100%' : `${width}px`
-          }}
+          style={{ width: itemWidth }}
         >{children[length - 2]}</li>
       ));
       itemArray.push((
         <li
           className="slide_item"
           key="slide_negative_1"
-          style={{
-            width: fullWidth ? '100%' : `${width}px`
-          }}
+          style={{ width: itemWidth }}
         >{children[length - 1]}</li>
       ));
     }
@@ -397,9 +404,7 @@ class Carousel extends React.Component {
       <li
         className={`slide_item${(idx + 1) === currentSlide ? ' active' : ''}`}
         key={`slide_${idx + 1}`}
-        style={{
-          width: fullWidth ? '100%' : `${width}px`
-        }}
+        style={{ width: itemWidth }}
       >{child}</li>
     )));
 
@@ -408,17 +413,13 @@ class Carousel extends React.Component {
         <li
           className="slide_item"
           key="slide_plus_1"
-          style={{
-            width: fullWidth ? '100%' : `${width}px`
-          }}
+          style={{ width: itemWidth }}
         >{children[0]}</li>));
       itemArray.push((
         <li
           className="slide_item"
           key="slide_plus_2"
-          style={{
-            width: fullWidth ? '100%' : `${width}px`
-          }}
+          style={{ width: itemWidth }}
         >{children[1]}</li>));
     }
 
@@ -473,7 +474,6 @@ class Carousel extends React.Component {
 
   render() {
     const { currentPositionX, tempPositionX } = this.state;
-    const { centerMode } = this.props;
 
     return (
       <div className="carousel_slider_wrapper">
@@ -490,9 +490,9 @@ class Carousel extends React.Component {
           onMouseMove={e => this.onMouseMove(e)}
           onMouseUp={e => this.onMouseUp(e)}
           onMouseLeave={e => this.onMouseLeave(e)}
-          style={centerMode ? {
+          style={{
             transform: `translate3d(${tempPositionX !== undefined ? tempPositionX : currentPositionX}px, 0, 0)`,
-          } : {}}
+          }}
         >
           {this.renderSlider()}
         </ul>
@@ -511,15 +511,22 @@ Carousel.propTypes = {
   autoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool,
-  centerMode: PropTypes.bool,
   targetSlide: PropTypes.number,
   cssEase: PropTypes.string,
+  slideToShow: PropTypes.number,
 };
 
 Carousel.defaultProps = {
+  naviType: CarouselNavigatorType.DOT,
+  fullWidth: Boolean(true),
+  width: CAROUSEL_AUTO_WIDTH,
+  duration: 200,
+  autoPlay: Boolean(true),
   autoPlayInterval: 1000,
+  isInfinite: Boolean(true),
   targetSlide: 1,
-  cssEase: 'cubic-bezier(0.420, 0.000, 0.580, 1.000)'
+  cssEase: 'cubic-bezier(0.420, 0.000, 0.580, 1.000)',
+  slideToShow: 1,
 };
 
 export default Carousel;
