@@ -191,7 +191,7 @@ class Carousel extends React.Component {
 
   setTimerStop() {
     const { autoPlaying } = this.state;
-    if (autoPlaying) {
+    if (this.timer || autoPlaying) {
       clearInterval(this.timer);
       this.timer = false;
       this.setState({ autoPlaying: false });
