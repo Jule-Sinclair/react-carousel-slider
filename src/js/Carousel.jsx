@@ -28,16 +28,6 @@ class Carousel extends React.Component {
     };
   }
 
-  componentWillMount() {
-    const { children, targetSlide } = this.props;
-
-    this.setState({
-      slideCount: children.length,
-      currentSlide: targetSlide,
-      currentPositionX: this.getHorizontalPosition(targetSlide)
-    });
-  }
-
   componentDidMount() {
     this.setAfterWindowResizeFunc = this._setAfterWindowResize.bind(this);
     this.setAfterTransitionFunc = this._setAfterTransition.bind(this);
@@ -49,6 +39,14 @@ class Carousel extends React.Component {
     window.addEventListener('focus', this.windowFocusOnFunc);
     window.addEventListener('blur', this.windowFocusOutFunc);
     this.setTimerStart();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      slideCount: nextProps.children.length,
+      currentSlide: nextProps.targetSlide,
+      currentPositionX: this.getHorizontalPosition(nextProps.targetSlide)
+    });
   }
 
   componentWillUnmount() {
