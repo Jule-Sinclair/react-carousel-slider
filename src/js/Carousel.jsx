@@ -55,12 +55,11 @@ class Carousel extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.targetSlide > 1) {
-      this.setState({
-        currentSlide: nextProps.targetSlide,
-        currentPositionX: this.getHorizontalPosition(nextProps.targetSlide)
-      });
-    }
+    this.setState({
+      slideCount: nextProps.children.length,
+      currentSlide: nextProps.targetSlide,
+      currentPositionX: this.getHorizontalPosition(nextProps.targetSlide)
+    });
   }
 
   componentWillUnmount() {
