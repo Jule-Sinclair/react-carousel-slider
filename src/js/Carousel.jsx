@@ -29,11 +29,16 @@ class Carousel extends React.Component {
   }
 
   componentWillMount() {
-    this.setState({
-      slideCount: this.props.children.length,
-      currentSlide: this.props.targetSlide,
-      currentPositionX: this.getHorizontalPosition(this.props.targetSlide)
-    });
+    const state = {};
+    state.slideCount = this.props.children.length;
+    if (this.props.targetSlide > 1) {
+      state.currentSlide = this.props.targetSlide;
+      state.currentPositionX = this.getHorizontalPosition(this.props.targetSlide);
+    } else {
+      state.currentSlide = 1;
+      state.currentPositionX = this.getHorizontalPosition(1);
+    }
+    this.setState(state);
   }
 
   componentDidMount() {
@@ -50,11 +55,12 @@ class Carousel extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({
-      slideCount: nextProps.children.length,
-      currentSlide: nextProps.targetSlide,
-      currentPositionX: this.getHorizontalPosition(nextProps.targetSlide)
-    });
+    if (nextProps.targetSlide > 1) {
+      this.setState({
+        currentSlide: nextProps.targetSlide,
+        currentPositionX: this.getHorizontalPosition(nextProps.targetSlide)
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -488,8 +494,25 @@ class Carousel extends React.Component {
   }
 
   render() {
+    const { isMobile } = this.props;
     const { currentPositionX, tempPositionX } = this.state;
 
+    let sliderEvents = {
+      onTouchStart: e => this.onTouchStart(e),
+      onTouchMove: e => this.onTouchMove(e),
+      onTouchEnd: e => this.onTouchEnd(e),
+      onTouchCancel: e => this.onTouchCancel(e)
+    };
+    if (!isMobile) {
+      sliderEvents = {
+        onMouseOver: e => this.onMouseOver(e),
+        onMouseOut: e => this.onMouseOut(e),
+        onMouseDown: e => this.onMouseDown(e),
+        onMouseMove: e => this.onMouseMove(e),
+        onMouseUp: e => this.onMouseUp(e),
+        onMouseLeave: e => this.onMouseLeave(e)
+      };
+    }
     return (
       <div
         className="carousel_slider_wrapper"
@@ -521,6 +544,7 @@ class Carousel extends React.Component {
 
 Carousel.propTypes = {
   children: PropTypes.node,
+  isMobile: PropTypes.bool,
   naviType: PropTypes.string,
   fullWidth: PropTypes.bool,
   containerWidth: PropTypes.number,
@@ -534,6 +558,7 @@ Carousel.propTypes = {
 };
 
 Carousel.defaultProps = {
+  isMobile: Boolean(true),
   naviType: CarouselNavigatorType.DOT,
   fullWidth: Boolean(true),
   containerWidth: window.innerWidth,
