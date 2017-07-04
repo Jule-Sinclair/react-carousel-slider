@@ -263,6 +263,9 @@ class Carousel extends React.Component {
     const { currentSlide, slideCount } = this.state;
 
     if (!isInfinite && currentSlide === slideCount) {
+      this.setState({
+        currentPositionX: this.getHorizontalPosition(currentSlide)
+      });
       return;
     }
 
@@ -277,6 +280,9 @@ class Carousel extends React.Component {
     const { currentSlide } = this.state;
 
     if (!isInfinite && currentSlide === 1) {
+      this.setState({
+        currentPositionX: this.getHorizontalPosition(currentSlide)
+      });
       return;
     }
 

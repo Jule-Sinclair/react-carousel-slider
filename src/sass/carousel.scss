@@ -6,7 +6,7 @@
   position: relative; overflow: hidden; min-height: 100px;
   .slider {
     position: absolute; white-space: nowrap;
-    overflow-x: visible; width: 100%;
+    overflow-x: visible; width: 100%; top: 0;
     .slide_item {
       display: inline-block; width: 100%;
     }
