@@ -66,6 +66,12 @@ class Carousel extends React.Component {
     if (this.setAfterWindowResizeFunc) {
       window.removeEventListener('resize', this.setAfterWindowResizeFunc);
     }
+    if (this.windowFocusOnFunc) {
+      window.removeEventListener('focus', this.windowFocusOnFunc);
+    }
+    if (this.windowFocusOutFunc) {
+      window.removeEventListener('blur', this.windowFocusOutFunc);
+    }
     if (this.setAfterTransitionFunc) {
       this.slidingArea.removeEventListener('transitionend', this.setAfterTransitionFunc);
     }
@@ -190,9 +196,9 @@ class Carousel extends React.Component {
 
 
   setTimerStart() {
-    const { autoPlay, autoPlayInterval } = this.props;
+    const { isAutoPlay, autoPlayInterval } = this.props;
     const { autoPlaying } = this.state;
-    if (autoPlay && !autoPlaying) {
+    if (isAutoPlay && !autoPlaying) {
       this.timer = setInterval(() => {
         this.autoPlayer();
       }, Number(autoPlayInterval));
@@ -213,12 +219,12 @@ class Carousel extends React.Component {
     const {
       elementWidth,
       isInfinite,
-      fullWidth,
+      isFullWidth,
       containerWidth
     } = this.props;
 
     let wrapperWidth = containerWidth;
-    if (fullWidth) {
+    if (isFullWidth) {
       wrapperWidth = window.innerWidth;
     }
 
@@ -315,13 +321,13 @@ class Carousel extends React.Component {
   }
 
   handleFocusOn() {
-    if (this.props.autoPlay) {
+    if (this.props.isAutoPlay) {
       this.setTimerStop();
     }
   }
 
   handleFocusOut() {
-    if (this.props.autoPlay) {
+    if (this.props.isAutoPlay) {
       this.setTimerStart();
     }
   }
@@ -396,14 +402,14 @@ class Carousel extends React.Component {
       children,
       isInfinite,
       elementWidth,
-      fullWidth,
+      isFullWidth,
     } = this.props;
     const { currentSlide } = this.state;
     const length = children.length;
     const itemArray = [];
     let itemWidth = '';
 
-    if (fullWidth) {
+    if (isFullWidth) {
       itemWidth = '100%';
     } else {
       itemWidth = `${elementWidth}px`;
@@ -525,16 +531,7 @@ class Carousel extends React.Component {
         <ul
           className="slider"
           ref={ul => { this.slidingArea = ul; }}
-          onTouchStart={e => this.onTouchStart(e)}
-          onTouchMove={e => this.onTouchMove(e)}
-          onTouchEnd={e => this.onTouchEnd(e)}
-          onTouchCancel={e => this.onTouchCancel(e)}
-          onMouseOver={e => this.onMouseOver(e)}
-          onMouseOut={e => this.onMouseOut(e)}
-          onMouseDown={e => this.onMouseDown(e)}
-          onMouseMove={e => this.onMouseMove(e)}
-          onMouseUp={e => this.onMouseUp(e)}
-          onMouseLeave={e => this.onMouseLeave(e)}
+          {...sliderEvents}
           style={{
             transform: `translate3d(${tempPositionX !== undefined ? tempPositionX : currentPositionX}px, 0, 0)`,
           }}
@@ -551,11 +548,11 @@ Carousel.propTypes = {
   children: PropTypes.node,
   isMobile: PropTypes.bool,
   naviType: PropTypes.string,
-  fullWidth: PropTypes.bool,
+  isFullWidth: PropTypes.bool,
   containerWidth: PropTypes.number,
   elementWidth: PropTypes.number.isRequired,
   duration: PropTypes.number,
-  autoPlay: PropTypes.bool,
+  isAutoPlay: PropTypes.bool,
   autoPlayInterval: PropTypes.number,
   isInfinite: PropTypes.bool,
   targetSlide: PropTypes.number,
@@ -565,10 +562,10 @@ Carousel.propTypes = {
 Carousel.defaultProps = {
   isMobile: Boolean(true),
   naviType: CarouselNavigatorType.DOT,
-  fullWidth: Boolean(true),
+  isFullWidth: Boolean(true),
   containerWidth: window.innerWidth,
   duration: 200,
-  autoPlay: Boolean(true),
+  isAutoPlay: Boolean(true),
   autoPlayInterval: 1000,
   isInfinite: Boolean(true),
   targetSlide: 1,
